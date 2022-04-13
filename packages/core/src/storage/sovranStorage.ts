@@ -75,7 +75,6 @@ export class SovranStorage implements Storage {
   private readinessStore: Store<ReadinessStore>;
   private contextStore: Store<{ context: DeepPartial<Context> }>;
   private settingsStore: Store<{ settings: SegmentAPIIntegrations }>;
-  private eventsStore: Store<{ events: SegmentEvent[] }>;
   private userInfoStore: Store<{ userInfo: UserInfoState }>;
   private deepLinkStore: Store<DeepLinkData> = deepLinkStore;
 
@@ -94,12 +93,6 @@ export class SovranStorage implements Storage {
       { settings: INITIAL_VALUES.settings },
       {
         persist: { storeId: `${this.storeId}-settings` },
-      }
-    );
-    this.eventsStore = createStore(
-      { events: INITIAL_VALUES.events },
-      {
-        persist: { storeId: `${this.storeId}-events` },
       }
     );
     this.userInfoStore = createStore(
@@ -180,25 +173,6 @@ export class SovranStorage implements Storage {
       this.settingsStore.dispatch((state) => ({
         settings: { ...state.settings, [key]: value },
       }));
-    },
-  };
-  readonly events = {
-    get: () => this.eventsStore.getState().events,
-    onChange: (callback: (value: SegmentEvent[]) => void) =>
-      this.eventsStore.subscribe((store) => callback(store.events)),
-    add: (event: SegmentEvent | SegmentEvent[]) => {
-      const eventsToAdd = Array.isArray(event) ? event : [event];
-      this.eventsStore.dispatch((state) => ({
-        events: [...state.events, ...eventsToAdd],
-      }));
-    },
-    remove: (event: SegmentEvent | SegmentEvent[]) => {
-      this.eventsStore.dispatch((state) => {
-        const eventsToRemove = Array.isArray(event) ? event : [event];
-        const setToRemove = new Set(eventsToRemove);
-        const filteredEvents = state.events.filter((e) => !setToRemove.has(e));
-        return { events: filteredEvents };
-      });
     },
   };
 

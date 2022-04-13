@@ -5,7 +5,7 @@ import {
   TrackEventType,
   UserTraits,
 } from '../types';
-import { sendEvents } from '../api';
+import { uploadEvents } from '../api';
 import * as context from '../context';
 
 describe('#sendEvents', () => {
@@ -56,7 +56,7 @@ describe('#sendEvents', () => {
       ...additionalEventProperties,
     };
 
-    await sendEvents({
+    await uploadEvents({
       config: {
         writeKey: 'SEGMENT_KEY',
       },
