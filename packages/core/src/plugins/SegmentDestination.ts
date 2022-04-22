@@ -63,7 +63,7 @@ export class SegmentDestination extends DestinationPlugin {
     super.configure(analytics);
 
     // Enrich events with the Destination metadata
-    this.add(new DestinationMetadataEnrichment());
+    this.add(new DestinationMetadataEnrichment(SEGMENT_DESTINATION_KEY));
     this.add(this.queuePlugin);
   }
 
