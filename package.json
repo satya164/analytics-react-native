@@ -15,11 +15,6 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "release": "release-it"
   },
-  "jest": {
-    "projects": [
-      "<rootDir>/packages/*"
-    ]
-  },
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",

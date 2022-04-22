@@ -1,5 +1,6 @@
 import type { Unsubscribe } from '@segment/sovran-react-native';
 import deepmerge from 'deepmerge';
+import allSettled from 'promise.allsettled';
 import { AppState, AppStateStatus } from 'react-native';
 import { settingsCDN } from './constants';
 import { getContext } from './context';
@@ -33,6 +34,9 @@ import {
 import { getPluginsWithFlush, getPluginsWithReset } from './util';
 import { getUUID } from './uuid';
 
+// Important! We need to polyfill Promise.allSettled because it's not supported in RN (https://github.com/facebook/react-native/issues/30236)
+allSettled.shim();
+
 export class SegmentClient {
   // the config parameters for the client - a merge of user provided and default options
   private config: Config;
@@ -50,7 +54,7 @@ export class SegmentClient {
   public logger: Logger;
 
   // internal time to know when to flush, ticks every second
-  private flushInterval: ReturnType<typeof setInterval> | null = null;
+  private flushInterval: ReturnType<typeof setTimeout> | null = null;
 
   // unsubscribe watchers for the store
   private watchers: Unsubscribe[] = [];
@@ -426,7 +430,7 @@ export class SegmentClient {
     }
   }
 
-  async flush(debounceInterval: boolean = true) {
+  async flush(debounceInterval: boolean = true): Promise<void> {
     if (this.destroyed) {
       return;
     }
@@ -436,7 +440,14 @@ export class SegmentClient {
       this.setupInterval();
     }
 
-    getPluginsWithFlush(this.timeline).forEach((plugin) => plugin.flush());
+    const promises: (void | Promise<void>)[] = [];
+    getPluginsWithFlush(this.timeline).forEach((plugin) => {
+      promises.push(plugin.flush());
+    });
+
+    await Promise.allSettled(promises);
+
+    return Promise.resolve();
   }
 
   screen(name: string, options?: JsonMap) {

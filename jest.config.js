@@ -5,6 +5,7 @@ module.exports = {
   preset: 'react-native',
   testPathIgnorePatterns: ['./packages/core/src/__tests__/__helpers__/'],
   modulePathIgnorePatterns: ['/lib/'],
+  projects: ['<rootDir>/packages/*'],
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.json',
